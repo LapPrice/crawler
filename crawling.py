@@ -10,9 +10,9 @@ driver = webdriver.Chrome(service=service)
 
 set_url_list_joongonara =set()
 
-def joongonaraGetUrl():
-    for i in range(5):
-        url = 'https://web.joongna.com/search/노트북?page='+str(i+1)
+def joongonaraGetUrl(page):
+    for i in range(page):
+        url = 'https://web.joongna.com/search?category=158&page='+str(i+1)
         driver.get(url)
         
         try:
@@ -27,11 +27,20 @@ def joongonaraGetUrl():
         finally:
             # 4. 드라이버 종료
             time.sleep(1)
-    driver.quit()
     for url in set_url_list_joongonara:
             print(url)
-    print("끝")
 
+joongonaraGetUrl(1)
 
+for url in set_url_list_joongonara:
+    driver.get(url)
+    time.sleep(1)
 
-joongonaraGetUrl()
+    try:
+        title = driver.find_element(By.XPATH, "/html/body/div/div/main/div[1]/div[1]/div[2]/div[2]/div[1]/h1").text
+        content = driver.find_element(By.XPATH,"/html/body/div/div/main/div[1]/div[3]/div[1]/div/div/article/p").text
+    finally:
+        print(title)
+        print(content)
+        print("끝")
+driver.quit()
