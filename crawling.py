@@ -8,30 +8,30 @@ import time
 service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service)
 
+set_url_list_joongonara =set()
 
-def joongonaraGetUrl(page_number):
-    url = 'https://web.joongna.com/search/노트북?page='+str(page_number)
-    driver.get(url)
-    
-    try:
-        items = driver.find_elements(By.XPATH, "/html/body/div/div/main/div[1]/div/ul[2]/li/a")
-
-        valid_links = []
-
-        for item in items:
-            url = item.get_attribute("href")
-            if url.startswith("https://web"):  # URL이 "https://web"으로 시작하는지 확인
-                valid_links.append(url)
+def joongonaraGetUrl():
+    for i in range(5):
+        url = 'https://web.joongna.com/search/노트북?page='+str(i+1)
+        driver.get(url)
         
-        set_list = set(valid_links)
+        try:
+            items = driver.find_elements(By.XPATH, "/html/body/div/div/main/div[1]/div/ul[2]/li/a")
 
-        for url in set_list:
+
+            for item in items:
+                url = item.get_attribute("href")
+                if url.startswith("https://web"):  # URL이 "https://web"으로 시작하는지 확인
+                    set_url_list_joongonara.add(url)
+            
+        finally:
+            # 4. 드라이버 종료
+            time.sleep(1)
+    driver.quit()
+    for url in set_url_list_joongonara:
             print(url)
-
-    finally:
-        # 4. 드라이버 종료
-        time.sleep(2)
-        driver.quit()
+    print("끝")
 
 
-joongonaraGetUrl(1)
+
+joongonaraGetUrl()
