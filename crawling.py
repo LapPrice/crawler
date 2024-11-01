@@ -21,26 +21,24 @@ def joongonaraGetUrl(page):
 
             for item in items:
                 url = item.get_attribute("href")
-                if url.startswith("https://web"):  # URL이 "https://web"으로 시작하는지 확인
+                if url.startswith("https://web"):  # URL이 "https://web"으로 시작하는지 확인 -> 중고나라에 광고 url 이 껴있는데 https://web 으로 시작하지 않음
                     set_url_list_joongonara.add(url)
             
         finally:
-            # 4. 드라이버 종료
             time.sleep(1)
+                
     for url in set_url_list_joongonara:
-            print(url)
+        driver.get(url)
+        time.sleep(1)
+
+        try:
+            title = driver.find_element(By.XPATH, "/html/body/div/div/main/div[1]/div[1]/div[2]/div[2]/div[1]/h1").text
+            content = driver.find_element(By.XPATH,"/html/body/div/div/main/div[1]/div[3]/div[1]/div/div/article/p").text
+        finally:
+            print(title)
+            print(content)
+            print("끝")
+    driver.quit()
+
 
 joongonaraGetUrl(1)
-
-for url in set_url_list_joongonara:
-    driver.get(url)
-    time.sleep(1)
-
-    try:
-        title = driver.find_element(By.XPATH, "/html/body/div/div/main/div[1]/div[1]/div[2]/div[2]/div[1]/h1").text
-        content = driver.find_element(By.XPATH,"/html/body/div/div/main/div[1]/div[3]/div[1]/div/div/article/p").text
-    finally:
-        print(title)
-        print(content)
-        print("끝")
-driver.quit()
