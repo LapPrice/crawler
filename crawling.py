@@ -2,17 +2,17 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from urllib.parse import quote, unquote
 import time
+import requests
 
 service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service)
 
 set_url_list_joongonara =set()
 
-def joongonaraGetUrl(page):
+def getJoongonara(page):
     for i in range(page):
-        url = 'https://web.joongna.com/search?category=158&page='+str(i+1)
+        url = 'https://web.joongna.com/search?category=158&page='+str(i+1) #category=158에서 랩탑에 대한 것들만 검색 가능함
         driver.get(url)
         
         try:
@@ -35,10 +35,10 @@ def joongonaraGetUrl(page):
             title = driver.find_element(By.XPATH, "/html/body/div/div/main/div[1]/div[1]/div[2]/div[2]/div[1]/h1").text
             content = driver.find_element(By.XPATH,"/html/body/div/div/main/div[1]/div[3]/div[1]/div/div/article/p").text
         finally:
-            print(title)
-            print(content)
-            print("끝")
+            to_response = title+content
     driver.quit()
 
 
-joongonaraGetUrl(1)
+
+
+getJoongonara(1)
