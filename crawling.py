@@ -27,8 +27,7 @@ def getJoongonara(page):
             for item in items:
                 url = item.get_attribute("href")
                 if url.startswith("https://web"):  # URL이 "https://web"으로 시작하는지 확인 -> 중고나라에 광고 url 이 껴있는데 https://web 으로 시작하지 않음
-                    set_url_list_joongonara.add(url)
-            
+                    set_url_list_joongonara.add(url)            
         finally:
             time.sleep(1)
                 
@@ -62,8 +61,6 @@ def request_to_gpt(request,url):
         {"role": "system", "content": "If the CPU manufacturer is Apple, parse it like this: example (M-8 OR M3-Pro-11 OR M3-Max-16)."},
         {"role": "system", "content": "If the CPU manufacturer is AMD , parse it like this: example (Ryzen-5-7520U)."},
         {"role": "system", "content": "Please respond in Korean."},
-
-
         {"role":"system","content":
 
         """
@@ -87,7 +84,7 @@ def request_to_gpt(request,url):
         ],
     )
     response_data = response.choices[0].message.content
-    
+
     try:
         # response_data가 문자열 형태의 JSON이면 이를 파싱하여 Python 딕셔너리로 변환
         response_dict = json.loads(response_data)
