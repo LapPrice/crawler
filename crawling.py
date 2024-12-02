@@ -11,12 +11,54 @@ import json
 import os
 
 
-service = Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=service)
+# service = Service(ChromeDriverManager().install())
+# driver = webdriver.Chrome(service=service)
 
 json_file_name = "gpt_response.json"
 
-def getJoongonara(file_path):
+def get_danawa(file_path):
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service)
+    with open("gptkey.txt","r",encoding="utf-8") as file:
+        key=file.read()
+        
+    
+    recorded_urls = read_urls_from_file(file_path)
+
+    for url in recorded_urls:
+        driver.get(url)
+        time.sleep(2)
+        try:
+            try:
+                title = driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/p[1]").text
+            except NoSuchElementException:
+                continue
+            try:
+                contents = driver.find_elements(By.XPATH, "/html/body/div[2]/div[2]/div/div/div[2]/div[1]/div[2]")
+                content = " ".join([content.text for content in contents])  # 리스트의 텍스트를 하나의 문자열로 결합
+
+            except NoSuchElementException:
+                continue
+            try:
+                price = driver.find_element(By.XPATH,"/html/body/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/p[2]/span").text
+            except NoSuchElementException:
+                continue
+        finally:
+            to_response = title+content+price
+            response_dict = request_to_gpt(key,to_response)
+            response_dict["URL"] = url
+            response_dict["source"] = "다나와"
+            if(response_dict["ram"]==None or 0) :continue #ram 이 null 이면 pass 
+            if(response_dict["name"]=="undefined") :continue #ram 이 null 이면 pass 
+            if(response_dict["cpu"]=="undefined") :continue #cpu 가 undefined 면 pass
+            if(response_dict["brand"]=="undefined") :continue
+            if(response_dict["brand"]==response_dict["name"]) : continue # name 과 브랜드가 같으면 pass
+            append_to_json_file(response_dict,"gpt_response.json")
+    driver.quit()
+
+def get_joongo(file_path):
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service)
     with open("gptkey.txt","r",encoding="utf-8") as file:
         key=file.read()
 
@@ -42,17 +84,53 @@ def getJoongonara(file_path):
             to_response = title+content+price
             response_dict = request_to_gpt(key,to_response)
             response_dict["URL"] = url
+            response_dict["source"] = "중고나라"
             if(response_dict["ram"]==None or 0) :continue #ram 이 null 이면 pass 
             if(response_dict["name"]=="undefined") :continue #ram 이 null 이면 pass 
             if(response_dict["cpu"]=="undefined") :continue #cpu 가 undefined 면 pass
             if(response_dict["brand"]=="undefined") :continue
-            if(response_dict["brand"]==response_dict["name"]) : continue # name 과 브랜드가 같으면 패스
+            if(response_dict["brand"]==response_dict["name"]) : continue # name 과 브랜드가 같으면 pass
             append_to_json_file(response_dict,"gpt_response.json")
     driver.quit()
 
 
+def get_bunjang(file_path):
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service)
+    with open("gptkey.txt","r",encoding="utf-8") as file:
+        key=file.read()
+        
     
+    recorded_urls = read_urls_from_file(file_path)
 
+    for url in recorded_urls:
+        driver.get(url)
+        time.sleep(2)
+        try:
+            try:
+                title = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/div[4]/div[1]/div/div[2]/div/div[2]/div/div[1]/div[1]/div[1]").text
+            except NoSuchElementException:
+                continue
+            try:
+                content = driver.find_element(By.XPATH,"/html/body/div[1]/div/div/div[4]/div[1]/div/div[5]/div[1]/div/div[1]/div[2]/div[1]/p").text
+            except NoSuchElementException:
+                continue
+            try:
+                price = driver.find_element(By.XPATH,"/html/body/div[1]/div/div/div[4]/div[1]/div/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div").text
+            except NoSuchElementException:
+                continue
+        finally:
+            to_response = title+content+price
+            response_dict = request_to_gpt(key,to_response)
+            response_dict["URL"] = url
+            response_dict["source"] = "번개장터"
+            if(response_dict["ram"]==None or 0) :continue #ram 이 null 이면 pass 
+            if(response_dict["name"]=="undefined") :continue #ram 이 null 이면 pass 
+            if(response_dict["cpu"]=="undefined") :continue #cpu 가 undefined 면 pass
+            if(response_dict["brand"]=="undefined") :continue
+            if(response_dict["brand"]==response_dict["name"]) : continue # name 과 브랜드가 같으면 pass
+            append_to_json_file(response_dict,"gpt_response.json")
+    driver.quit()
 
 def request_to_gpt(key,request):
     
@@ -66,7 +144,6 @@ def request_to_gpt(key,request):
         {"role": "system", "content": "if CPU manufacturer is Intel, parse it like this : example that i want('i5-8250U' OR (give me 'Ultra-5' not 'Ultra-5-125H' it shpuld be 'Ultra-5') OR 'Pentium-N3700')"},
         {"role": "system", "content": "If the CPU manufacturer is Apple, parse it like this: example (M-8 OR M3-Pro-11 OR M3-Max-16 OR M2)."},
         {"role": "system", "content": "If the CPU manufacturer is AMD , parse it like this: example (Ryzen-5-7520U)."},
-        {"role": "system", "content": "Please respond without any spaces."},
         {"role" : "system", "content": "The JSON key 'name' should be english"},
         {"role": "system", "content":
         """
@@ -80,7 +157,7 @@ def request_to_gpt(key,request):
           and "맥북"  "MacBook." but it can permit "MacBookAir" or "MacBookPro" and Please format it as "MacBookPro," not "MacBookPro16"
            For the rest of the names, you can translate them as you see fit.
           """},
-        {"role":"system","content":
+        {"role":"user","content":
 
         """
         I will give you the content of a laptop sales post, and from that content, please extract the following values. 
@@ -93,7 +170,7 @@ def request_to_gpt(key,request):
             cpu : string | undefined;
             ram : number | undefined;
             inch : number | undefined; // inch must be a INTEGER number 
-            disk : number | undefined;
+            ssd : number | undefined;
             price: number| undefined;
         }
         """ },
@@ -146,6 +223,15 @@ def read_urls_from_file(file_path):
         return set()
     
 
-getJoongonara("crawl_url_from_joongonara.txt")
+
+
+
+
+
+get_joongo("crawl_url_from_joongonara.txt")
+get_bunjang("crawl_url_from_bunjang.txt")
+get_danawa("crawl_url_from_danawa.txt")
+
+
 
 

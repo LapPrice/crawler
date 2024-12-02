@@ -11,7 +11,43 @@ import time
 service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service)
 
-def crawlURL(page,file_path):
+
+def crawl_url_danawa(page,file_path):
+    recorded_urls = read_urls_from_file(file_path)
+    for i in range(page):
+        url = 'https://dmall.danawa.com/v3/?controller=sale&methods=index&parentCategoryCode=3&childCategoryCode=1#'+str(i+1)
+        driver.get(url)
+        time.sleep(1.5)
+        try:
+            items = driver.find_elements(By.XPATH,"/html/body/div[2]/div[2]/div/div/div[2]/div[6]/table/tbody/tr")
+            for item in items:
+                a_tag = item.find_element(By.XPATH, "td[2]/a")  # 각 tr 내에서 td[2]/a 태그 찾기
+                url = a_tag.get_attribute("href")  # href 속성 값 가져오기
+                if url.startswith("http://dmall.danawa.com/") and url not in recorded_urls:
+                    append_url_to_file(url,file_path)
+        finally:
+            time.sleep(1)
+
+
+def crawl_url_bunjang(page,file_path):
+    recorded_urls = read_urls_from_file(file_path)
+
+    for i in range(page):
+        url = 'https://m.bunjang.co.kr/search/products?category_id=600100001&order=score&page='+str(i+1)+'&q=노트북'
+        driver.get(url)
+        time.sleep(1.5)
+        try:
+            items = driver.find_elements(By.XPATH,"/html/body/div[1]/div/div/div[4]/div/div[4]/div/div/a")
+            
+            for item in items:
+                url = item.get_attribute("href")
+                if url.startswith("https://m.bunjang.co.kr/") and url not in recorded_urls:
+                    append_url_to_file(url,file_path)
+        finally:
+            time.sleep(1)
+
+
+def crawl_url_joongo(page,file_path):
     recorded_urls = read_urls_from_file(file_path)
 
     for i in range(page):
@@ -67,5 +103,9 @@ def crawl_url_with_selenium(start_url, file_path):
 
     driver.quit()  # 드라이버 종료
 
-file_path = 'crawl_url_from_joongonara.txt'  # 기록할 URL 파일 경로
-crawlURL(100, file_path)
+file_path_joongo = 'crawl_url_from_joongonara.txt'  # 기록할 URL 파일 경로
+file_path_bunjang = 'crawl_url_from_bunjang.txt'
+file_path_danawa = 'crawl_url_from_danawa.txt'
+crawl_url_joongo(1, file_path_joongo)
+crawl_url_bunjang(1,file_path_bunjang)
+crawl_url_danawa(1,file_path_danawa)
