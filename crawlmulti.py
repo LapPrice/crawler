@@ -84,7 +84,7 @@ def request_to_gpt(key,request):
         {"role" : "system", "content": "The key value 'name' in JSON should not allow spaces And also, remove the model name at the end."},
         {"role" : "system", "content": "The key value name in JSON should not allow spaces."},
         {"role" : "system", "content": "If spaces are included, replace them with hyphens (`-`).like UltraPC-> Ultra-PC"},
-        
+        {"role" : "system", "content": "Give 'MacBookPro' as 'MacBookPro', not as 'MacBook-Pro'."},
         {"role": "system", "content":
         """
          I'm a software developer, and I need standardized data values to store in a database. 

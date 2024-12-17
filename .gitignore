@@ -1,6 +1,17 @@
 gptkey.txt
 gpt_response.json
 gpt_response1.josn
+gpt_response2.josn
+gpt_response3.josn
+gpt_response4.josn
+gpt_response5.josn
+gpt_response6.josn
+gpt_response7.josn
+gpt_response8.josn
+gpt_response9.josn
+*.josn
+
 crawl_url_from_joongonara.txt
 crawl_url_from_bunjang.txt
+save_json.py
 crawl_url_from_danawa.txt
