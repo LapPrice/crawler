@@ -106,6 +106,8 @@ def crawl_url_with_selenium(start_url, file_path):
 file_path_joongo = 'crawl_url_from_joongonara.txt'  # 기록할 URL 파일 경로
 file_path_bunjang = 'crawl_url_from_bunjang.txt'
 file_path_danawa = 'crawl_url_from_danawa.txt'
-crawl_url_joongo(1, file_path_joongo)
-crawl_url_bunjang(1,file_path_bunjang)
-crawl_url_danawa(1,file_path_danawa)
+# crawl_url_joongo(30, file_path_joongo)
+# time.sleep(1)
+# crawl_url_bunjang(30,file_path_bunjang)
+# time.sleep(1)
+crawl_url_danawa(120,file_path_danawa)

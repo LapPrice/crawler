@@ -1,3 +1,4 @@
+import threading
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -19,10 +20,9 @@ json_file_name = "gpt_response.json"
 def get_danawa(file_path):
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service)
-    with open("gptkey.txt","r",encoding="utf-8") as file:
-        key=file.read()
-        
-    
+    with open("gptkey.txt", "r", encoding="utf-8") as file:
+        key = file.read()
+
     recorded_urls = read_urls_from_file(file_path)
 
     for url in recorded_urls:
@@ -35,35 +35,40 @@ def get_danawa(file_path):
                 continue
             try:
                 contents = driver.find_elements(By.XPATH, "/html/body/div[2]/div[2]/div/div/div[2]/div[1]/div[2]")
-                content = " ".join([content.text for content in contents])  # 리스트의 텍스트를 하나의 문자열로 결합
-
+                content = " ".join([content.text for content in contents])
             except NoSuchElementException:
                 continue
             try:
-                price = driver.find_element(By.XPATH,"/html/body/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/p[2]/span").text
+                price = driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div/div[1]/div[2]/div[1]/p[2]/span").text
             except NoSuchElementException:
                 continue
         finally:
-            to_response = title+content+price
-            response_dict = request_to_gpt(key,to_response)
-            response_dict["URL"] = url
-            response_dict["source"] = "다나와"
-            if(response_dict["ram"]==None or 0) :continue #ram 이 null 이면 pass 
-            if(response_dict["name"]=="undefined") :continue #ram 이 null 이면 pass 
-            if(response_dict["cpu"]=="undefined") :continue #cpu 가 undefined 면 pass
-            if(response_dict["brand"]=="undefined") :continue
-            if(response_dict["brand"]==response_dict["name"]) : continue # name 과 브랜드가 같으면 pass
-            append_to_json_file(response_dict,"gpt_response.json")
+            to_response = title + content + price
+            response_dict = request_to_gpt(key, to_response)
+            try:
+                response_dict["URL"] = url
+                response_dict["source"] = "다나와"
+                if response_dict["ram"] in (None, 0, "undefined"): continue
+                if response_dict["name"] in "undefined": continue
+                if response_dict["inch"] in (None, 0, "undefined"): continue
+                if response_dict["cpu"] in "undefined": continue
+                if response_dict["brand"] in "undefined": continue
+                if response_dict["ssd"] in (None, 0, "undefined"): continue
+                if response_dict["brand"] == response_dict["name"]: continue
+                append_to_json_file(response_dict, "gpt_response.json")
+            except Exception:
+                print("Error occurred while parsing.")
+                continue
     driver.quit()
 
 def get_joongo(file_path):
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service)
-    with open("gptkey.txt","r",encoding="utf-8") as file:
-        key=file.read()
+    with open("gptkey.txt", "r", encoding="utf-8") as file:
+        key = file.read()
 
     recorded_urls = read_urls_from_file(file_path)
-    
+
     for url in recorded_urls:
         driver.get(url)
         time.sleep(2)
@@ -73,34 +78,37 @@ def get_joongo(file_path):
             except NoSuchElementException:
                 continue
             try:
-                content = driver.find_element(By.XPATH,"/html/body/div/div/main/div[1]/div[3]/div[1]/div/div/article/p").text
+                content = driver.find_element(By.XPATH, "/html/body/div/div/main/div[1]/div[3]/div[1]/div/div/article/p").text
             except NoSuchElementException:
                 continue
             try:
-                price = driver.find_element(By.XPATH,"/html/body/div/div/main/div[1]/div[1]/div[2]/div[2]/div[2]/div").text
+                price = driver.find_element(By.XPATH, "/html/body/div/div/main/div[1]/div[1]/div[2]/div[2]/div[2]/div").text
             except NoSuchElementException:
                 continue
         finally:
-            to_response = title+content+price
-            response_dict = request_to_gpt(key,to_response)
-            response_dict["URL"] = url
-            response_dict["source"] = "중고나라"
-            if(response_dict["ram"]==None or 0) :continue #ram 이 null 이면 pass 
-            if(response_dict["name"]=="undefined") :continue #ram 이 null 이면 pass 
-            if(response_dict["cpu"]=="undefined") :continue #cpu 가 undefined 면 pass
-            if(response_dict["brand"]=="undefined") :continue
-            if(response_dict["brand"]==response_dict["name"]) : continue # name 과 브랜드가 같으면 pass
-            append_to_json_file(response_dict,"gpt_response.json")
+            to_response = title + content + price
+            response_dict = request_to_gpt(key, to_response)
+            try:
+                response_dict["URL"] = url
+                response_dict["source"] = "중고나라"
+                if response_dict["ram"] in (None, 0, "undefined"): continue
+                if response_dict["name"] in "undefined": continue
+                if response_dict["inch"] in (None, 0, "undefined"): continue
+                if response_dict["cpu"] in "undefined": continue
+                if response_dict["brand"] in "undefined": continue
+                if response_dict["ssd"] in (None, 0, "undefined"): continue
+                if response_dict["brand"] == response_dict["name"]: continue
+                append_to_json_file(response_dict, "gpt_response.json")
+            except Exception:
+                print("Error occurred while parsing.")
+                continue
     driver.quit()
-
-
 def get_bunjang(file_path):
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service)
-    with open("gptkey.txt","r",encoding="utf-8") as file:
-        key=file.read()
-        
-    
+    with open("gptkey.txt", "r", encoding="utf-8") as file:
+        key = file.read()
+
     recorded_urls = read_urls_from_file(file_path)
 
     for url in recorded_urls:
@@ -112,24 +120,30 @@ def get_bunjang(file_path):
             except NoSuchElementException:
                 continue
             try:
-                content = driver.find_element(By.XPATH,"/html/body/div[1]/div/div/div[4]/div[1]/div/div[5]/div[1]/div/div[1]/div[2]/div[1]/p").text
+                content = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/div[4]/div[1]/div/div[5]/div[1]/div/div[1]/div[2]/div[1]/p").text
             except NoSuchElementException:
                 continue
             try:
-                price = driver.find_element(By.XPATH,"/html/body/div[1]/div/div/div[4]/div[1]/div/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div").text
+                price = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/div[4]/div[1]/div/div[2]/div/div[2]/div/div[1]/div[1]/div[3]/div").text
             except NoSuchElementException:
                 continue
         finally:
-            to_response = title+content+price
-            response_dict = request_to_gpt(key,to_response)
-            response_dict["URL"] = url
-            response_dict["source"] = "번개장터"
-            if(response_dict["ram"]==None or 0) :continue #ram 이 null 이면 pass 
-            if(response_dict["name"]=="undefined") :continue #ram 이 null 이면 pass 
-            if(response_dict["cpu"]=="undefined") :continue #cpu 가 undefined 면 pass
-            if(response_dict["brand"]=="undefined") :continue
-            if(response_dict["brand"]==response_dict["name"]) : continue # name 과 브랜드가 같으면 pass
-            append_to_json_file(response_dict,"gpt_response.json")
+            to_response = title + content + price
+            response_dict = request_to_gpt(key, to_response)
+            try:
+                response_dict["URL"] = url
+                response_dict["source"] = "번개장터"
+                if response_dict["ram"] in (None, 0, "undefined"): continue
+                if response_dict["name"] in "undefined": continue
+                if response_dict["inch"] in (None, 0, "undefined"): continue
+                if response_dict["cpu"] in "undefined": continue
+                if response_dict["brand"] in "undefined": continue
+                if response_dict["ssd"] in (None, 0, "undefined"): continue
+                if response_dict["brand"] == response_dict["name"]: continue
+                append_to_json_file(response_dict, "gpt_response.json")
+            except Exception:
+                print("Error occurred while parsing.")
+                continue
     driver.quit()
 
 def request_to_gpt(key,request):
@@ -142,9 +156,12 @@ def request_to_gpt(key,request):
         response_format={ "type": "json_object" },
         messages=[
         {"role": "system", "content": "if CPU manufacturer is Intel, parse it like this : example that i want('i5-8250U' OR (give me 'Ultra-5' not 'Ultra-5-125H' it shpuld be 'Ultra-5') OR 'Pentium-N3700')"},
-        {"role": "system", "content": "If the CPU manufacturer is Apple, parse it like this: example (M-8 OR M3-Pro-11 OR M3-Max-16 OR M2)."},
+        {"role": "system", "content": "If the CPU manufacturer is Apple, parse it like this: example (M1 OR M3 Pro OR M3 Max OR M2, OR M2 Pro). please give me just M1, M2, M3, M1 Pro,M2 Pro,M3 Pro,M3 Max"},
+        {"role": "system", "content": "Remove the all of parentheness, and if cpu name has only frequency or too simplified name (ex. ONLY i5 OR 2.6ghz OR i5-4세대 or i5-13th ), cpu name should be undefined.  "},
         {"role": "system", "content": "If the CPU manufacturer is AMD , parse it like this: example (Ryzen-5-7520U)."},
-        {"role" : "system", "content": "The JSON key 'name' should be english"},
+        {"role": "system", "content": "your respone key to value cpu name should be simplified also cannot contain korean just english please"},
+        {"role": "system", "content": "If ssd marked 1TB give me data as 1024"},
+        {"role" : "system", "content": "The JSON key 'name' and 'cpu' should be english"},
         {"role": "system", "content":
         """
          I'm a software developer, and I need standardized data values to store in a database. 
@@ -152,7 +169,7 @@ def request_to_gpt(key,request):
         """},
          {"role":"system","content":
           """
-          When you find the word "그램," please only translate it as "Gram." and Please format it as "Gram" not "Gram14"
+          When you find the word "그램," please only translate it as "Gram." and Please format it as "Gram" not "Gram14" ,"Gram15" Gram16",and "Gram17" 
           Also, "이온" should be "Ion," "갤럭시북" should be "GalaxyBook,"also it should be "GalaxyBook" 
           and "맥북"  "MacBook." but it can permit "MacBookAir" or "MacBookPro" and Please format it as "MacBookPro," not "MacBookPro16"
            For the rest of the names, you can translate them as you see fit.
@@ -168,9 +185,9 @@ def request_to_gpt(key,request):
             'ACER' |'ALLDOCUBE'|'BASICS'|'CHUWI'|'DICLE'|'FORYOUDIGITAL'|'GIGABYTE'|'GPD'|'HP'|'HUAWEI'|'JOOYON'|'LENOVO'
             |'MPGIO'|'NEXTBOOK'|'RAZER'|'TEDAST'|'VICTRACK' |'undefined';
             cpu : string | undefined;
-            ram : number | undefined;
-            inch : number | undefined; // inch must be a INTEGER number 
-            ssd : number | undefined;
+            ram : number | null;
+            inch : number | undefined; // inch should be 0 and should Integer if you can't find inch number
+            ssd : number | null;
             price: number| undefined;
         }
         """ },
@@ -227,11 +244,21 @@ def read_urls_from_file(file_path):
 
 
 
-
-get_joongo("crawl_url_from_joongonara.txt")
-get_bunjang("crawl_url_from_bunjang.txt")
 get_danawa("crawl_url_from_danawa.txt")
+get_bunjang("crawl_url_from_bunjang.txt")
+get_joongo("crawl_url_from_joongonara.txt")
 
 
 
+if __name__ == "__main__":
+    danawa_thread = threading.Thread(target=get_danawa, args=("crawl_url_from_danawa.txt",))
+    joongo_thread = threading.Thread(target=get_joongo, args=("crawl_url_from_joongonara.txt",))
+    bunjang_thread = threading.Thread(target=get_bunjang, args=("crawl_url_from_bunjang.txt",))
 
+    danawa_thread.start()
+    joongo_thread.start()
+    bunjang_thread.start()
+
+    danawa_thread.join()
+    joongo_thread.join()
+    bunjang_thread.join()
